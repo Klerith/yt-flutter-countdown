@@ -1,4 +1,6 @@
+import 'package:countdown_app/presentation/providers/countdown_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,7 +16,8 @@ class HomePageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
+    final countdownProvider = Provider.of<CountdownProvider>(context);
+
     return Scaffold(
       /// Título de la página
       appBar: AppBar(
@@ -22,7 +25,7 @@ class HomePageView extends StatelessWidget {
         actions: [
           IconButton(
               onPressed: () {
-                ///TODO Reiniciar el timer
+                countdownProvider.setCountdownDuration(const Duration(seconds: 60));
               },
               icon: const Icon(Icons.restart_alt_outlined))
         ],
@@ -34,9 +37,11 @@ class HomePageView extends StatelessWidget {
       /// Play - Stop
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ///TODO Iniciar o detener el temporizador
+          countdownProvider.startStopTimer();
         },
-        child: const Icon( Icons.play_arrow_outlined ),
+        child: Icon(countdownProvider.isRunning
+            ? Icons.pause
+            : Icons.play_arrow_outlined),
       ),
     );
   }
@@ -53,12 +58,13 @@ class _CounterLabel extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: const [
-          Icon(Icons.timer_outlined, color: Colors.blue, size: 60),
-          SizedBox(width: 10),
+        children: [
+          const Icon(Icons.timer_outlined, color: Colors.blue, size: 60),
+          const SizedBox(width: 10),
           Text(
-            '00:30',
-            style: TextStyle(fontSize: 50),
+            context.select(
+                (CountdownProvider countdown) => countdown.timeLeftString),
+            style: const TextStyle(fontSize: 50),
           ),
         ],
       ),
